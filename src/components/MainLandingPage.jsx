@@ -1,0 +1,636 @@
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ClientLogos from './ClientLogos';
+
+const GOOGLE_CALENDAR_LINK = 'https://calendar.google.com/calendar/u/0/selfsched?sstoken=YOUR_TOKEN'; // Replace with your actual booking link
+const EMAIL_ADDRESS = 'hello@thearchitectlab.com';
+
+const MainLandingPage = () => {
+  const [currentSection, setCurrentSection] = useState(0);
+  const [counts, setCounts] = useState({ strategies: 0, brands: 0, introductions: 0, value: 0 });
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [showLeadModal, setShowLeadModal] = useState(false);
+  const [selectedTool, setSelectedTool] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    company: '',
+    toolId: ''
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const navigate = useNavigate();
+
+  const sections = [
+    "Hero", "Services", "Impact", "Clients", "Tools", "Industries", "Contact"
+  ];
+
+  const tools = useMemo(() => [
+    {
+      id: "website-comparison",
+      title: "SEO Tool",
+      description: "A sophisticated analysis of your website's performance against competitors you actually care about. Get actionable insights and recommendations.",
+      cta: "Access Tool",
+      service: "Signal Test Lab"
+    },
+    {
+      id: "partnership-health",
+      title: "Partnership Health Checker",
+      description: "An honest evaluation of your current partnerships. Which ones are performing, which need attention, and which should be quietly retired.",
+      cta: "Access Tool",
+      service: "Partnership Studio"
+    },
+    {
+      id: "market-readiness",
+      title: "Market Entry Readiness Assessment",
+      description: "A discerning evaluation of your expansion readiness. Better to know now than discover later in expensive real-time.",
+      cta: "Access Tool",
+      service: "Market Entry Engine"
+    }
+  ], []);
+
+  const services = useMemo(() => [
+    {
+      id: "01",
+      title: "Signal Test Lab",
+      description: "Validate ideas before you waste budget.",
+      funFacts: [],
+      forWho: "",
+      builtFor: "",
+      keywords: ""
+    },
+    {
+      id: "02",
+      title: "Brand Performance Studio",
+      description: "Fix what's not working in your brand or partnerships.",
+      funFacts: [],
+      forWho: "",
+      builtFor: "",
+      keywords: ""
+    },
+    {
+      id: "03",
+      title: "Market Entry Engine",
+      description: "Enter new markets with elegance and traction.",
+      funFacts: [],
+      forWho: "",
+      builtFor: "",
+      keywords: ""
+    }
+  ], []);
+
+  const industriesList = [
+    "LUXURY", "TECHNOLOGY", "AUTOMOTIVE", "FASHION", "FINTECH", "TRAVEL", "BEAUTY", "ENTERTAINMENT", "RETAIL", "SAAS AND TECH"
+  ];
+
+  // Check for mobile on mount
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Optimized counter animation with useCallback
+  const animateCounters = useCallback(() => {
+    if (isAnimating) return;
+    
+    setIsAnimating(true);
+    const duration = 2000;
+    const startTime = Date.now();
+    const targetValues = { strategies: 30, brands: 12, introductions: 60, value: 110 };
+    
+    const animate = () => {
+      const currentTime = Date.now();
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      
+      setCounts({
+        strategies: Math.floor(easeOutQuart * targetValues.strategies),
+        brands: Math.floor(easeOutQuart * targetValues.brands),
+        introductions: Math.floor(easeOutQuart * targetValues.introductions),
+        value: Math.floor(easeOutQuart * targetValues.value)
+      });
+      
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        setIsAnimating(false);
+      }
+    };
+    animate();
+  }, [isAnimating]);
+
+  // Only animate counters when Impact section is visible
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !isAnimating) {
+            animateCounters();
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    const impactSection = document.getElementById('impact');
+    if (impactSection) {
+      observer.observe(impactSection);
+    }
+
+    return () => {
+      if (impactSection) {
+        observer.unobserve(impactSection);
+      }
+    };
+  }, [isAnimating, animateCounters]);
+
+  // Add scroll-based section detection
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const sectionHeight = windowHeight;
+      const newSection = Math.floor(scrollPosition / sectionHeight);
+      
+      if (newSection !== currentSection && newSection >= 0 && newSection < sections.length) {
+        setCurrentSection(newSection);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [currentSection, sections.length]);
+
+  const handleToolAccess = (tool) => {
+    setSelectedTool(tool);
+    setShowLeadModal(true);
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.name.trim()) errors.name = 'Name is required';
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = 'Email is invalid';
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      // Here you would typically send the data to your backend
+      console.log('Form submitted:', formData);
+      
+      // Open tool in new tab with access granted
+      window.open(`/tools/${formData.toolId}?access=granted&email=${encodeURIComponent(formData.email)}`, '_blank');
+      
+      // Reset form and close modal
+      setFormData({ name: '', email: '', company: '', toolId: '' });
+      setShowLeadModal(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (formErrors[name]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const renderHero = () => (
+    <div className="w-full h-screen bg-black text-white flex flex-col justify-center items-center px-4 md:px-12 text-center relative overflow-hidden">
+      <div className="absolute inset-0 opacity-10 md:opacity-20 pointer-events-none">
+        <svg className="w-full h-full" viewBox="0 0 1200 800" aria-hidden="true">
+          <defs>
+            <linearGradient id="wireGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.4"/>
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0.1"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,400 Q300,200 600,400 T1200,400" stroke="url(#wireGradient)" strokeWidth="1" fill="none" className="animate-pulse"/>
+          <path d="M0,600 Q400,300 800,600 T1200,200" stroke="url(#wireGradient)" strokeWidth="1" fill="none"/>
+          <circle cx="200" cy="150" r="80" stroke="url(#wireGradient)" strokeWidth="1" fill="none"/>
+          <circle cx="1000" cy="600" r="120" stroke="url(#wireGradient)" strokeWidth="1" fill="none" className="animate-ping"/>
+        </svg>
+      </div>
+
+      <div className="relative z-10 max-w-6xl w-full">        
+        <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-[10rem] font-extralight mb-8 md:mb-20 leading-[0.75] tracking-tight">
+          The{' '}
+          <span className="relative">
+            <span className="italic font-thin text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-300 to-gray-500">
+              Architect Lab
+            </span>
+            <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          </span>
+        </h1>
+        
+        <div className="max-w-4xl mx-auto mb-12 md:mb-24">
+          <p className="text-base sm:text-lg md:text-xl font-light text-gray-300 leading-relaxed mb-8 md:mb-12 px-4">
+            A modern growth atelier. We craft unfair advantages through three distinct movements.
+          </p>
+          <button
+            className="group relative px-8 md:px-20 py-4 md:py-6 bg-white text-black text-xs font-medium tracking-[0.2em] md:tracking-[0.4em] uppercase hover:bg-gray-100 transition-all duration-700 rounded-full shadow-2xl overflow-hidden"
+            onClick={() => setShowContactModal(true)}
+          >
+            <span className="relative z-10">Start Conversation</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+          </button>
+        </div>
+      </div>
+
+      <div className="absolute bottom-4 md:bottom-8 left-1/2 transform -translate-x-1/2 text-xs text-gray-500 font-mono tracking-wider animate-bounce">
+        ↓ SCROLL
+      </div>
+      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+    </div>
+  );
+
+  const renderServiceSummary = () => (
+    <div className="w-full h-screen bg-gradient-to-br from-rose-100 to-amber-100 flex flex-col justify-center px-4 md:px-12 text-center relative overflow-hidden">
+      {!isMobile && (
+        <>
+          <div className="absolute top-1/5 right-1/4 w-28 h-28 bg-white rounded-full opacity-40 blur-sm"></div>
+          <div className="absolute bottom-1/4 left-1/5 w-20 h-20 bg-black rounded-full opacity-10"></div>
+        </>
+      )}
+      
+      <div className="relative z-10 max-w-6xl mx-auto w-full">
+        <div className="text-xs font-mono text-stone-500 mb-6 md:mb-12 tracking-[0.4em] uppercase">Services</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-20">
+          <div className="text-center">
+            <div className="text-xs font-mono text-stone-500 mb-4 tracking-[0.4em] uppercase">TEST</div>
+            <h3 className="text-2xl md:text-3xl font-light mb-4 text-black">Signal Test Lab</h3>
+            <p className="text-sm text-stone-700 font-light">Validate ideas fast + smart</p>
+          </div>
+          <div className="text-center">
+            <div className="text-xs font-mono text-stone-500 mb-4 tracking-[0.4em] uppercase">REFINE</div>
+            <h3 className="text-2xl md:text-3xl font-light mb-4 text-black">Partnership Studio</h3>
+            <p className="text-sm text-stone-700 font-light">Optimise & amplify every collaboration</p>
+          </div>
+          <div className="text-center">
+            <div className="text-xs font-mono text-stone-500 mb-4 tracking-[0.4em] uppercase">EXPAND</div>
+            <h3 className="text-2xl md:text-3xl font-light mb-4 text-black">Market Entry Engine</h3>
+            <p className="text-sm text-stone-700 font-light">Launch in new markets with local precision</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderImpact = () => (
+    <div className="w-full h-screen bg-stone-50 flex flex-col justify-center px-4 md:px-12 text-left relative">
+      <div className="relative z-10 max-w-7xl mx-auto w-full">
+        <div className="text-xs font-mono text-stone-500 mb-4 md:mb-8 tracking-[0.3em] uppercase">Proven Results</div>
+        <h2 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-light mb-12 md:mb-24 text-black tracking-tight">Impact</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-20">
+          <div className="text-left">
+            <div className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-light mb-3 md:mb-6 text-black tracking-tight">
+              {counts.strategies}+
+            </div>
+            <div className="text-xs text-stone-600 font-mono tracking-[0.2em] uppercase leading-relaxed">
+              Go-to-market<br/>Strategies
+            </div>
+          </div>
+          <div className="text-left">
+            <div className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-light mb-3 md:mb-6 text-black tracking-tight">
+              {counts.brands}+
+            </div>
+            <div className="text-xs text-stone-600 font-mono tracking-[0.2em] uppercase leading-relaxed">
+              Brands<br/>Repositioned
+            </div>
+          </div>
+          <div className="text-left">
+            <div className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-light mb-3 md:mb-6 text-black tracking-tight">
+              {counts.introductions}+
+            </div>
+            <div className="text-xs text-stone-600 font-mono tracking-[0.2em] uppercase leading-relaxed">
+              Strategic<br/>Introductions
+            </div>
+          </div>
+          <div className="text-left">
+            <div className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-light mb-3 md:mb-6 text-black tracking-tight">
+              €{counts.value}M+
+            </div>
+            <div className="text-xs text-stone-600 font-mono tracking-[0.2em] uppercase leading-relaxed">
+              Value<br/>Created
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderClients = () => (
+    <div className="w-full h-screen bg-white flex flex-col justify-center px-4 md:px-12 text-center relative">
+      {!isMobile && (
+        <div className="absolute top-1/3 left-1/6 w-20 h-20 bg-rose-100 rounded-full opacity-30"></div>
+      )}
+      <div className="relative z-10 max-w-7xl mx-auto w-full">
+        <div className="text-xs font-mono text-stone-400 mb-6 md:mb-12 tracking-[0.4em] uppercase">Trusted By</div>
+        <h2 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extralight mb-12 md:mb-24 text-black tracking-tight">Selected Clients</h2>
+        <ClientLogos />
+      </div>
+    </div>
+  );
+
+  const renderTools = () => (
+    <div className="w-full h-screen bg-white flex flex-col justify-center px-4 md:px-12 text-left">
+      <div className="max-w-7xl mx-auto w-full">
+        <h2 className="text-4xl sm:text-5xl md:text-6xl font-light mb-8 md:mb-12">Tools</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-10">
+          {tools.map((tool, index) => (
+            <div key={index} className="bg-gray-50 border border-gray-200 p-6 md:p-8 rounded-xl shadow hover:shadow-md transition">
+              <div className="text-xs font-mono text-stone-500 mb-4 tracking-[0.2em] uppercase">{tool.service}</div>
+              <h3 className="text-lg md:text-xl font-medium mb-4">{tool.title}</h3>
+              <p className="text-sm text-gray-700 mb-6 leading-relaxed">{tool.description}</p>
+              <button 
+                onClick={() => handleToolAccess(tool)}
+                className="text-sm px-6 py-3 bg-black text-white rounded hover:bg-gray-900 transition-all"
+              >
+                {tool.cta}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderService = (serviceIndex) => {
+    const service = services[serviceIndex];
+    const colors = [
+      'from-rose-100 to-amber-100',
+      'from-sky-100 to-teal-100', 
+      'from-stone-100 to-green-100'
+    ];
+    
+    return (
+      <div className={`w-full h-screen bg-gradient-to-br ${colors[serviceIndex]} flex flex-col justify-center items-center px-4 md:px-12 text-center relative overflow-hidden`}>
+        {!isMobile && (
+          <>
+            <div className="absolute top-1/5 right-1/4 w-28 h-28 bg-white rounded-full opacity-40 blur-sm"></div>
+            <div className="absolute bottom-1/4 left-1/5 w-20 h-20 bg-black rounded-full opacity-10"></div>
+          </>
+        )}
+        
+        <div className="relative z-10 max-w-6xl mx-auto w-full">
+          <div className="text-xs font-mono text-stone-500 mb-6 md:mb-12 tracking-[0.4em] uppercase">{service.id === "01" ? "TEST" : service.id === "02" ? "REFINE" : "EXPAND"}</div>
+          <h2 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-extralight mb-8 md:mb-16 leading-none text-black tracking-tight">
+            {service.title}
+          </h2>
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-stone-700 mb-8 md:mb-12 leading-relaxed max-w-5xl mx-auto font-light px-4">
+            {service.description}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderIndustries = () => (
+    <div className="w-full h-screen bg-black text-white overflow-hidden relative flex flex-col justify-center">
+      <div className="flex flex-col gap-8 md:gap-16 w-full">
+        {/* Line 1: Left to Right */}
+        <div className="w-full overflow-x-hidden">
+          <div className="whitespace-nowrap animate-marquee-right">
+            {industriesList.concat(industriesList).map((industry, idx) => (
+              <span key={`ind1-${idx}`} className="text-2xl sm:text-4xl md:text-6xl font-light opacity-30 inline-block mx-8">
+                / {industry} 
+              </span>
+            ))}
+          </div>
+        </div>
+        {/* Line 2: Right to Left */}
+        <div className="w-full overflow-x-hidden">
+          <div className="whitespace-nowrap animate-marquee-left">
+            {industriesList.concat(industriesList).map((industry, idx) => (
+              <span key={`ind2-${idx}`} className="text-2xl sm:text-4xl md:text-6xl font-light opacity-30 inline-block mx-8">
+                / {industry} 
+              </span>
+            ))}
+          </div>
+        </div>
+        {/* Line 3: Left to Right */}
+        <div className="w-full overflow-x-hidden">
+          <div className="whitespace-nowrap animate-marquee-right">
+            {industriesList.concat(industriesList).map((industry, idx) => (
+              <span key={`ind3-${idx}`} className="text-2xl sm:text-4xl md:text-6xl font-light opacity-30 inline-block mx-8">
+                / {industry} 
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="absolute top-4 md:top-8 left-4 md:left-8 z-10">
+        <div className="text-xs font-mono text-gray-400 tracking-[0.3em] uppercase">We Work With</div>
+      </div>
+      <div className="absolute bottom-4 md:bottom-8 right-4 md:right-8 z-10">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light tracking-tight text-right"></h2>
+      </div>
+    </div>
+  );
+
+  const renderContact = () => (
+    <div className="w-full h-screen bg-black text-white flex flex-col justify-center px-4 md:px-12 text-center relative">
+      <div className="max-w-4xl mx-auto">
+        <h2
+          className="text-6xl sm:text-8xl md:text-[12rem] font-extralight mb-8 md:mb-16 leading-none text-white tracking-tight cursor-pointer"
+          onClick={() => setShowContactModal(true)}
+        >
+          LET'S TALK
+        </h2>
+        <p className="text-base md:text-lg text-gray-300 mb-8 md:mb-16 max-w-2xl mx-auto font-light leading-relaxed px-4">
+          We're selective about who we work with. Are you?
+        </p>
+        <div className="space-y-4 md:space-y-6">
+          <div className="text-sm text-gray-400 font-mono tracking-wider">
+            {EMAIL_ADDRESS}
+          </div>
+        </div>
+      </div>
+      {/* Modal Popup */}
+      {showContactModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-white rounded-xl shadow-xl p-8 max-w-sm w-full text-center relative">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-black text-xl font-bold"
+              onClick={() => setShowContactModal(false)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <h3 className="text-2xl font-semibold mb-6 text-black">How do you want to connect?</h3>
+            <div className="flex flex-col gap-4">
+              <a
+                href={GOOGLE_CALENDAR_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 px-4 bg-black text-white rounded hover:bg-gray-900 transition text-base font-medium"
+              >
+                Extroverts: Book a Call
+              </a>
+              <a
+                href={`mailto:${EMAIL_ADDRESS}`}
+                className="w-full py-3 px-4 bg-gray-100 text-black rounded hover:bg-gray-200 transition text-base font-medium"
+              >
+                Introverts: Email
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderLeadModal = () => {
+    if (!showLeadModal || !selectedTool) return null;
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full mx-4 relative">
+          <button
+            className="absolute top-4 right-4 text-gray-400 hover:text-black text-xl font-bold"
+            onClick={() => setShowLeadModal(false)}
+            aria-label="Close"
+          >
+            ×
+          </button>
+          
+          <div className="mb-6">
+            <h3 className="text-2xl font-light mb-2">Access {selectedTool.title}</h3>
+            <p className="text-sm text-gray-600">Quick details for tool access. No spam, just insights.</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent ${
+                  formErrors.name ? 'border-red-500' : 'border-gray-200'
+                }`}
+                placeholder="Your name"
+              />
+              {formErrors.name && (
+                <p className="mt-1 text-sm text-red-500">{formErrors.name}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Work Email <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent ${
+                  formErrors.email ? 'border-red-500' : 'border-gray-200'
+                }`}
+                placeholder="you@company.com"
+              />
+              {formErrors.email && (
+                <p className="mt-1 text-sm text-red-500">{formErrors.email}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Company (optional)
+              </label>
+              <input
+                type="text"
+                name="company"
+                value={formData.company}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                placeholder="Your company"
+              />
+            </div>
+
+            <input
+              type="hidden"
+              name="toolId"
+              value={selectedTool.id}
+            />
+
+            <div className="pt-4">
+              <button
+                type="submit"
+                className="w-full py-3 px-4 bg-black text-white rounded-lg hover:bg-gray-900 transition-colors text-sm font-medium"
+              >
+                Access Tool
+              </button>
+              <p className="mt-2 text-xs text-gray-500 text-center">
+                We'll email you the results. Unsubscribe anytime.
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="w-full min-h-screen font-sans relative">
+      <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-4 md:p-8 bg-transparent">
+        <div className="grid grid-cols-3 gap-1 text-xs font-mono leading-none">
+          <span>A</span><span>R</span><span>C</span>
+          <span>H</span><span>I</span><span>T</span>
+          <span>L</span><span>A</span><span>B</span>
+        </div>
+        <div className="hidden sm:flex space-x-4 md:space-x-8 text-xs text-black font-mono tracking-wider">
+          <a href="#services" className="hover:opacity-50 transition-opacity">SERVICES</a>
+          <a href="#tools" className="hover:opacity-50 transition-opacity">TOOLS</a>
+          <a href="#contact" className="hover:opacity-50 transition-opacity">CONTACT</a>
+        </div>
+        <div className="sm:hidden">
+          <a href="#contact" className="text-xs font-mono tracking-wider">MENU</a>
+        </div>
+      </nav>
+
+      {/* All sections stacked vertically */}
+      <div className="w-full">
+        {renderHero()}
+        <div id="services">{renderServiceSummary()}</div>
+        <div id="impact">{renderImpact()}</div>
+        {renderClients()}
+        <div id="tools">{renderTools()}</div>
+        <div id="services-detail">
+          {renderService(0)}
+          {renderService(1)}
+          {renderService(2)}
+        </div>
+        {renderIndustries()}
+        <div id="contact">{renderContact()}</div>
+      </div>
+      {renderLeadModal()}
+    </div>
+  );
+};
+
+export default MainLandingPage; 
