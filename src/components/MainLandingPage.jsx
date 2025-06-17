@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ClientLogos from './ClientLogos';
+import CompleteSeOAnalyzer from "./tools/WebsiteComparisonTool";
 
-const GOOGLE_CALENDAR_LINK = 'https://calendar.google.com/calendar/u/0/selfsched?sstoken=YOUR_TOKEN'; // Replace with your actual booking link
+const GOOGLE_CALENDAR_LINK = 'https://calendar.google.com/calendar/appointments/AcZssZ3RJRgK3FH4awi0c83MQmPRmAo09-0N4ZAdiNQ=?gv=true';
 const EMAIL_ADDRESS = 'hello@thearchitectlab.com';
 
 const MainLandingPage = () => {
@@ -20,6 +21,7 @@ const MainLandingPage = () => {
     toolId: ''
   });
   const [formErrors, setFormErrors] = useState({});
+  const [showSeoToolModal, setShowSeoToolModal] = useState(false);
   const navigate = useNavigate();
 
   const sections = [
@@ -28,7 +30,7 @@ const MainLandingPage = () => {
 
   const tools = useMemo(() => [
     {
-      id: "website-comparison",
+      id: "seo-analyser",
       title: "SEO Tool",
       description: "A sophisticated analysis of your website's performance against competitors you actually care about. Get actionable insights and recommendations.",
       cta: "Access Tool",
@@ -169,8 +171,13 @@ const MainLandingPage = () => {
   }, [currentSection, sections.length]);
 
   const handleToolAccess = (tool) => {
-    setSelectedTool(tool);
-    setShowLeadModal(true);
+    if (tool.id === 'seo-analyser') {
+      console.log('Opening SEO Tool Modal');
+      setShowSeoToolModal(true);
+    } else {
+      setSelectedTool(tool);
+      setShowLeadModal(true);
+    }
   };
 
   const validateForm = () => {
@@ -190,11 +197,10 @@ const MainLandingPage = () => {
     if (validateForm()) {
       // Here you would typically send the data to your backend
       console.log('Form submitted:', formData);
-      
-      // Open tool in new tab with access granted
-      window.open(`/tools/${formData.toolId}?access=granted&email=${encodeURIComponent(formData.email)}`, '_blank');
-      
-      // Reset form and close modal
+      // Only open a new tab for non-SEO tools
+      if (formData.toolId !== 'seo-analyser') {
+        window.open(`/tools/${formData.toolId}?access=granted&email=${encodeURIComponent(formData.email)}`, '_blank');
+      }
       setFormData({ name: '', email: '', company: '', toolId: '' });
       setShowLeadModal(false);
     }
@@ -353,7 +359,7 @@ const MainLandingPage = () => {
   );
 
   const renderTools = () => (
-    <div className="w-full h-screen bg-white flex flex-col justify-center px-4 md:px-12 text-left">
+    <div className="w-full min-h-screen bg-white flex flex-col justify-center px-4 md:px-12 text-left pb-16">
       <div className="max-w-7xl mx-auto w-full">
         <h2 className="text-4xl sm:text-5xl md:text-6xl font-light mb-8 md:mb-12">Tools</h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-10">
@@ -374,36 +380,6 @@ const MainLandingPage = () => {
       </div>
     </div>
   );
-
-  const renderService = (serviceIndex) => {
-    const service = services[serviceIndex];
-    const colors = [
-      'from-rose-100 to-amber-100',
-      'from-sky-100 to-teal-100', 
-      'from-stone-100 to-green-100'
-    ];
-    
-    return (
-      <div className={`w-full h-screen bg-gradient-to-br ${colors[serviceIndex]} flex flex-col justify-center items-center px-4 md:px-12 text-center relative overflow-hidden`}>
-        {!isMobile && (
-          <>
-            <div className="absolute top-1/5 right-1/4 w-28 h-28 bg-white rounded-full opacity-40 blur-sm"></div>
-            <div className="absolute bottom-1/4 left-1/5 w-20 h-20 bg-black rounded-full opacity-10"></div>
-          </>
-        )}
-        
-        <div className="relative z-10 max-w-6xl mx-auto w-full">
-          <div className="text-xs font-mono text-stone-500 mb-6 md:mb-12 tracking-[0.4em] uppercase">{service.id === "01" ? "TEST" : service.id === "02" ? "REFINE" : "EXPAND"}</div>
-          <h2 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-extralight mb-8 md:mb-16 leading-none text-black tracking-tight">
-            {service.title}
-          </h2>
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-stone-700 mb-8 md:mb-12 leading-relaxed max-w-5xl mx-auto font-light px-4">
-            {service.description}
-          </p>
-        </div>
-      </div>
-    );
-  };
 
   const renderIndustries = () => (
     <div className="w-full h-screen bg-black text-white overflow-hidden relative flex flex-col justify-center">
@@ -595,6 +571,18 @@ const MainLandingPage = () => {
     );
   };
 
+  // Prevent background scroll when SEO tool modal is open
+  useEffect(() => {
+    if (showSeoToolModal) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => {
+      document.body.classList.remove('overflow-hidden');
+    };
+  }, [showSeoToolModal]);
+
   return (
     <div className="w-full min-h-screen font-sans relative">
       <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-4 md:p-8 bg-transparent">
@@ -621,14 +609,26 @@ const MainLandingPage = () => {
         {renderClients()}
         <div id="tools">{renderTools()}</div>
         <div id="services-detail">
-          {renderService(0)}
-          {renderService(1)}
-          {renderService(2)}
+          {/* Removed renderService(0), renderService(1), renderService(2) as requested */}
         </div>
         {renderIndustries()}
         <div id="contact">{renderContact()}</div>
       </div>
       {renderLeadModal()}
+      {showSeoToolModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-xl p-8 max-w-3xl w-full mx-4 relative">
+            <button
+              className="absolute top-4 right-4 text-gray-400 hover:text-black text-xl font-bold"
+              onClick={() => setShowSeoToolModal(false)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <CompleteSeOAnalyzer />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

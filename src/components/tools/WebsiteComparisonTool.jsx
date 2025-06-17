@@ -52,42 +52,42 @@ const SEOTool = () => {
     setIsLoading(true);
     
     try {
-      // Here you would typically make an API call to your backend
-      // For now, we'll simulate a response
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simulated results
-      setResults({
-        seoScore: 85,
-        performanceScore: 78,
-        contentScore: 92,
-        technicalScore: 81,
-        recommendations: [
-          "Improve meta descriptions for better click-through rates",
-          "Optimize image sizes for faster loading",
-          "Enhance mobile responsiveness",
-          "Strengthen internal linking structure"
-        ],
-        competitors: {
-          [formData.competitor1]: {
-            seoScore: 82,
-            performanceScore: 85,
-            contentScore: 88,
-            technicalScore: 79
-          },
-          [formData.competitor2]: {
-            seoScore: 78,
-            performanceScore: 82,
-            contentScore: 85,
-            technicalScore: 76
-          },
-          [formData.competitor3]: {
-            seoScore: 75,
-            performanceScore: 80,
-            contentScore: 83,
-            technicalScore: 74
+      // Real API call to backend for main website
+      const mainRes = await fetch('http://localhost:3002/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: formData.yourWebsite })
+      });
+      const mainResult = await mainRes.json();
+      if (!mainRes.ok) throw new Error(mainResult.error || 'Failed to analyze main website');
+
+      // Analyze competitors in parallel if provided
+      const competitorUrls = [formData.competitor1, formData.competitor2, formData.competitor3].filter(Boolean);
+      const competitorResults = {};
+      if (competitorUrls.length > 0) {
+        const competitorPromises = competitorUrls.map(async (url) => {
+          const res = await fetch('http://localhost:3002/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+          });
+          const result = await res.json();
+          if (res.ok) {
+            competitorResults[url] = result.scores || {};
+          } else {
+            competitorResults[url] = { error: result.error || 'Failed to analyze' };
           }
-        }
+        });
+        await Promise.all(competitorPromises);
+      }
+
+      setResults({
+        seoScore: mainResult.scores?.overall ?? 0,
+        performanceScore: mainResult.scores?.performance ?? 0,
+        contentScore: mainResult.scores?.content ?? 0,
+        technicalScore: mainResult.scores?.technical ?? 0,
+        recommendations: mainResult.recommendations || [],
+        competitors: competitorResults
       });
     } catch (error) {
       console.error('Error analyzing websites:', error);

@@ -1,11 +1,17 @@
 import { useParams } from 'react-router-dom';
 import WebsiteComparisonTool from './tools/WebsiteComparisonTool';
+import CompleteSeOAnalyzer from "./tools/WebsiteComparisonTool";
 
 const tools = {
   'website-comparison': { 
     component: WebsiteComparisonTool,
     title: "SEO Tool",
     description: "A sophisticated analysis of your website's performance against competitors you actually care about. Get actionable insights and recommendations."
+  },
+  'seo-analyser': {
+    component: CompleteSeOAnalyzer,
+    title: "SEO Analyser",
+    description: "A deep technical and content SEO analysis between your site and a competitor."
   },
   'partnership-health': { 
     title: "Partnership Health Checker",
