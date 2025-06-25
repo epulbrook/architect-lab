@@ -1,14 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="The Architects - Digital Experience Design Agency" />
-    <title>The Architects</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
-</html> 
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>The Architect Lab - Modern Growth Atelier</title>
+  <meta name="description" content="A modern growth atelier crafting unfair advantages for luxury brands and high-growth companies through strategic consulting and business architecture.">
+  <meta name="keywords" content="business consulting, growth strategy, luxury brands, business architecture, strategic consulting, modern atelier">
+  <meta name="author" content="The Architect Lab">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="English">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://thearchitectlab.com/">
+  <meta property="og:title" content="The Architect Lab - Modern Growth Atelier">
+  <meta property="og:description" content="A modern growth atelier crafting unfair advantages for luxury brands and high-growth companies.">
+  <meta property="og:image" content="https://thearchitectlab.com/og-image.jpg">
+  <meta property="og:site_name" content="The Architect Lab">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://thearchitectlab.com/">
+  <meta name="twitter:title" content="The Architect Lab - Modern Growth Atelier">
+  <meta name="twitter:description" content="A modern growth atelier crafting unfair advantages for luxury brands and high-growth companies.">
+  <meta name="twitter:image" content="https://thearchitectlab.com/twitter-image.jpg">
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://thearchitectlab.com/">
+
+  <!-- Favicon & Manifest -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="/tab_favicon_final.svg" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "The Architect Lab",
+    "alternateName": "Modern Growth Atelier",
+    "description": "A modern growth atelier crafting unfair advantages for luxury brands and high-growth companies through strategic consulting and business architecture.",
+    "url": "https://thearchitectlab.com",
+    "email": "contact@thearchitectlab.com",
+    "address": [
+      {
+        "@type": "PostalAddress",
+        "addressLocality": "Berlin",
+        "addressRegion": "Berlin",
+        "addressCountry": "Germany"
+      },
+      {
+        "@type": "PostalAddress",
+        "addressLocality": "London",
+        "addressRegion": "England",
+        "addressCountry": "United Kingdom"
+      }
+    ],
+    "sameAs": [
+      "https://linkedin.com/company/thearchitectlab",
+      "https://twitter.com/thearchitectlab"
+    ],
+    "serviceType": "Business Consulting",
+    "areaServed": "Europe",
+    "logo": "https://thearchitectlab.com/logo.png"
+  }
+  </script>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9MBRWCRY4W"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-9MBRWCRY4W', {
+      page_title: 'Home',
+      page_location: 'https://thearchitectlab.com/'
+    });
+  </script>
+
+  <!-- Firebase Analytics -->
+  <script type="module">
+    import { initializeApp } from 'firebase/app';
+    import { getAnalytics } from 'firebase/analytics';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAckLboHQ6LPR5YTHekXyIbh8SEHDCX0lc",
+      authDomain: "architect-lab-bf587.firebaseapp.com",
+      projectId: "architect-lab-bf587",
+      storageBucket: "architect-lab-bf587.appspot.com",
+      messagingSenderId: "252773975169",
+      appId: "1:252773975169:web:01a538155e3d78c5443980",
+      measurementId: "G-9MBRWCRY4W"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    window.firebaseAnalytics = analytics;
+  </script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+
+  <!-- CTA Tracking -->
+  <script type="module">
+    import { logEvent } from 'firebase/analytics';
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const ctaButton = document.querySelector('[data-cta="start-conversation"]');
+      if (ctaButton && window.firebaseAnalytics) {
+        ctaButton.addEventListener('click', function() {
+          gtag('event', 'conversion', {
+            'send_to': 'G-9MBRWCRY4W/CONVERSION_ID',
+            'event_category': 'engagement',
+            'event_label': 'start_conversation_click'
+          });
+
+          logEvent(window.firebaseAnalytics, 'cta_click', {
+            button_name: 'start_conversation',
+            location: 'homepage_hero'
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</html>

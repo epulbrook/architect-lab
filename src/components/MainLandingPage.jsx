@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ClientLogos from './ClientLogos';
 import CompleteSeOAnalyzer from "./tools/WebsiteComparisonTool";
+import { Helmet } from 'react-helmet-async'
 
 const GOOGLE_CALENDAR_LINK = 'https://calendar.google.com/calendar/appointments/AcZssZ3RJRgK3FH4awi0c83MQmPRmAo09-0N4ZAdiNQ=?gv=true';
 const EMAIL_ADDRESS = 'hello@thearchitectlab.com';
@@ -22,6 +23,7 @@ const MainLandingPage = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [showSeoToolModal, setShowSeoToolModal] = useState(false);
+  const [navIsDark, setNavIsDark] = useState(true);
   const navigate = useNavigate();
 
   const sections = [
@@ -31,17 +33,17 @@ const MainLandingPage = () => {
   const tools = useMemo(() => [
     {
       id: "seo-analyser",
-      title: "SEO Tool",
-      description: "A sophisticated analysis of your website's performance against competitors you actually care about. Get actionable insights and recommendations.",
-      cta: "Access Tool",
-      service: "Signal Test Lab"
+      title: "Competitor Website Checker",
+      description: "Compare your website to competitors instantly. Get actionable SEO and web performance insights.",
+      cta: "Check Now",
+      service: "Competitor Website Checker"
     },
     {
       id: "partnership-health",
-      title: "Partnership Health Checker",
-      description: "An honest evaluation of your current partnerships. Which ones are performing, which need attention, and which should be quietly retired.",
+      title: "Referral Management Portal",
+      description: "Centralise your partner referral programme, score partner health, and optimise deal velocity with a data-driven dashboard.",
       cta: "Access Tool",
-      service: "Partnership Studio"
+      service: "Referral Management Portal"
     },
     {
       id: "market-readiness",
@@ -55,8 +57,9 @@ const MainLandingPage = () => {
   const services = useMemo(() => [
     {
       id: "01",
-      title: "Signal Test Lab",
-      description: "Validate ideas before you waste budget.",
+      title: "Understand & Test",
+      subtitle: "Tools & Systems",
+      description: "We design and build bespoke tools and systems to help you understand, test, and validate your business opportunities.",
       funFacts: [],
       forWho: "",
       builtFor: "",
@@ -64,8 +67,9 @@ const MainLandingPage = () => {
     },
     {
       id: "02",
-      title: "Brand Performance Studio",
-      description: "Fix what's not working in your brand or partnerships.",
+      title: "Build",
+      subtitle: "Market Entry",
+      description: "We architect and execute your market entry—combining strategy, localisation, and operational delivery for successful launches.",
       funFacts: [],
       forWho: "",
       builtFor: "",
@@ -73,8 +77,9 @@ const MainLandingPage = () => {
     },
     {
       id: "03",
-      title: "Market Entry Engine",
-      description: "Enter new markets with elegance and traction.",
+      title: "Expand",
+      subtitle: "Partnerships & Relationships",
+      description: "We help you scale through partnership and relationship programmes, unlocking new channels and sustainable growth.",
       funFacts: [],
       forWho: "",
       builtFor: "",
@@ -170,10 +175,22 @@ const MainLandingPage = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [currentSection, sections.length]);
 
+  // Add scroll-based nav color detection
+  useEffect(() => {
+    const handleScroll = () => {
+      // If scrolled past the hero section (height of window), switch to black text
+      setNavIsDark(window.scrollY < window.innerHeight * 0.8);
+    };
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // set initial
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const handleToolAccess = (tool) => {
     if (tool.id === 'seo-analyser') {
-      console.log('Opening SEO Tool Modal');
-      setShowSeoToolModal(true);
+      navigate('/seo-analyzer');
+    } else if (tool.id === 'partnership-health') {
+      window.open('/tools/partnership-health', '_blank');
     } else {
       setSelectedTool(tool);
       setShowLeadModal(true);
@@ -248,7 +265,6 @@ const MainLandingPage = () => {
             <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
           </span>
         </h1>
-        
         <div className="max-w-4xl mx-auto mb-12 md:mb-24">
           <p className="text-base sm:text-lg md:text-xl font-light text-gray-300 leading-relaxed mb-8 md:mb-12 px-4">
             A modern growth atelier. We craft unfair advantages through three distinct movements.
@@ -281,22 +297,15 @@ const MainLandingPage = () => {
       
       <div className="relative z-10 max-w-6xl mx-auto w-full">
         <div className="text-xs font-mono text-stone-500 mb-6 md:mb-12 tracking-[0.4em] uppercase">Services</div>
+        <div className="text-lg md:text-xl font-light text-black mb-8">We help B2B teams test, refine and expand their growth.</div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-20">
-          <div className="text-center">
-            <div className="text-xs font-mono text-stone-500 mb-4 tracking-[0.4em] uppercase">TEST</div>
-            <h3 className="text-2xl md:text-3xl font-light mb-4 text-black">Signal Test Lab</h3>
-            <p className="text-sm text-stone-700 font-light">Validate ideas fast + smart</p>
-          </div>
-          <div className="text-center">
-            <div className="text-xs font-mono text-stone-500 mb-4 tracking-[0.4em] uppercase">REFINE</div>
-            <h3 className="text-2xl md:text-3xl font-light mb-4 text-black">Partnership Studio</h3>
-            <p className="text-sm text-stone-700 font-light">Optimise & amplify every collaboration</p>
-          </div>
-          <div className="text-center">
-            <div className="text-xs font-mono text-stone-500 mb-4 tracking-[0.4em] uppercase">EXPAND</div>
-            <h3 className="text-2xl md:text-3xl font-light mb-4 text-black">Market Entry Engine</h3>
-            <p className="text-sm text-stone-700 font-light">Launch in new markets with local precision</p>
-          </div>
+          {services.map((service, idx) => (
+            <div key={service.id} className="text-center">
+              <div className="text-sm text-stone-600 mb-2">{service.title}</div>
+              <h3 className="text-2xl md:text-3xl font-light mb-4 text-black">{service.subtitle}</h3>
+              <p className="text-sm text-stone-700 font-light">{service.description}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -361,7 +370,7 @@ const MainLandingPage = () => {
   const renderTools = () => (
     <div className="w-full min-h-screen bg-white flex flex-col justify-center px-4 md:px-12 text-left pb-16">
       <div className="max-w-7xl mx-auto w-full">
-        <h2 className="text-4xl sm:text-5xl md:text-6xl font-light mb-8 md:mb-12">Tools</h2>
+        <h2 className="text-4xl sm:text-5xl md:text-6xl font-light mb-8 md:mb-12">Tools. By us.</h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-10">
           {tools.map((tool, index) => (
             <div key={index} className="bg-gray-50 border border-gray-200 p-6 md:p-8 rounded-xl shadow hover:shadow-md transition">
@@ -433,9 +442,7 @@ const MainLandingPage = () => {
         >
           LET'S TALK
         </h2>
-        <p className="text-base md:text-lg text-gray-300 mb-8 md:mb-16 max-w-2xl mx-auto font-light leading-relaxed px-4">
-          We're selective about who we work with. Are you?
-        </p>
+        <p className="text-base md:text-lg text-gray-300 mb-8 md:mb-16 max-w-2xl mx-auto font-light leading-relaxed px-4"></p>
         <div className="space-y-4 md:space-y-6">
           <div className="text-sm text-gray-400 font-mono tracking-wider">
             {EMAIL_ADDRESS}
@@ -584,52 +591,66 @@ const MainLandingPage = () => {
   }, [showSeoToolModal]);
 
   return (
-    <div className="w-full min-h-screen font-sans relative">
-      <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-4 md:p-8 bg-transparent">
-        <div className="grid grid-cols-3 gap-1 text-xs font-mono leading-none">
-          <span>A</span><span>R</span><span>C</span>
-          <span>H</span><span>I</span><span>T</span>
-          <span>L</span><span>A</span><span>B</span>
-        </div>
-        <div className="hidden sm:flex space-x-4 md:space-x-8 text-xs text-black font-mono tracking-wider">
-          <a href="#services" className="hover:opacity-50 transition-opacity">SERVICES</a>
-          <a href="#tools" className="hover:opacity-50 transition-opacity">TOOLS</a>
-          <a href="#contact" className="hover:opacity-50 transition-opacity">CONTACT</a>
-        </div>
-        <div className="sm:hidden">
-          <a href="#contact" className="text-xs font-mono tracking-wider">MENU</a>
-        </div>
-      </nav>
-
-      {/* All sections stacked vertically */}
-      <div className="w-full">
-        {renderHero()}
-        <div id="services">{renderServiceSummary()}</div>
-        <div id="impact">{renderImpact()}</div>
-        {renderClients()}
-        <div id="tools">{renderTools()}</div>
-        <div id="services-detail">
-          {/* Removed renderService(0), renderService(1), renderService(2) as requested */}
-        </div>
-        {renderIndustries()}
-        <div id="contact">{renderContact()}</div>
-      </div>
-      {renderLeadModal()}
-      {showSeoToolModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-xl p-8 max-w-3xl w-full mx-4 relative">
-            <button
-              className="absolute top-4 right-4 text-gray-400 hover:text-black text-xl font-bold"
-              onClick={() => setShowSeoToolModal(false)}
-              aria-label="Close"
-            >
-              ×
-            </button>
-            <CompleteSeOAnalyzer />
+    <>
+      <Helmet>
+        <title>The Architect Lab - Modern Growth Atelier | Strategic Business Consulting</title>
+        <meta name="description" content="A modern growth atelier crafting unfair advantages for luxury brands and high-growth companies through strategic consulting and business architecture." />
+        <meta name="keywords" content="business consulting, growth strategy, luxury brands, business architecture, strategic consulting, modern atelier" />
+        <meta property="og:title" content="The Architect Lab - Modern Growth Atelier" />
+        <meta property="og:description" content="A modern growth atelier crafting unfair advantages for luxury brands and high-growth companies." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://thearchitectlab.com/" />
+        <meta property="og:image" content="https://thearchitectlab.com/og-image.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="The Architect Lab - Modern Growth Atelier" />
+        <meta name="twitter:description" content="A modern growth atelier crafting unfair advantages for luxury brands and high-growth companies." />
+        <meta name="twitter:image" content="https://thearchitectlab.com/twitter-image.jpg" />
+        <link rel="canonical" href="https://thearchitectlab.com/" />
+      </Helmet>
+      <div className="w-full min-h-screen font-sans relative">
+        <nav className={`fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-4 md:p-8 bg-transparent transition-colors duration-300 ${navIsDark ? 'text-white' : 'text-black'}`}>
+          <div className="grid grid-cols-3 gap-1 text-xs font-mono leading-none">
+            <span>A</span><span>R</span><span>C</span>
+            <span>H</span><span>I</span><span>T</span>
+            <span>L</span><span>A</span><span>B</span>
           </div>
+          <div className="hidden sm:flex space-x-4 md:space-x-8 text-xs font-mono tracking-wider">
+            <a href="#services" className="hover:opacity-50 transition-opacity">SERVICES</a>
+            <a href="#tools" className="hover:opacity-50 transition-opacity">TOOLS</a>
+            <a href="#contact" className="hover:opacity-50 transition-opacity">CONTACT</a>
+          </div>
+          <div className="sm:hidden">
+            <a href="#contact" className="text-xs font-mono tracking-wider">MENU</a>
+          </div>
+        </nav>
+
+        {/* All sections stacked vertically */}
+        <div className="w-full">
+          {renderHero()}
+          <div id="services">{renderServiceSummary()}</div>
+          <div id="impact">{renderImpact()}</div>
+          {renderClients()}
+          <div id="tools">{renderTools()}</div>
+          <div id="industries">{renderIndustries()}</div>
+          <div id="contact">{renderContact()}</div>
         </div>
-      )}
-    </div>
+        {renderLeadModal()}
+        {showSeoToolModal && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="bg-white rounded-xl shadow-xl p-8 max-w-3xl w-full mx-4 relative">
+              <button
+                className="absolute top-4 right-4 text-gray-400 hover:text-black text-xl font-bold"
+                onClick={() => setShowSeoToolModal(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+              <CompleteSeOAnalyzer />
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

@@ -1,21 +1,29 @@
 import { useParams } from 'react-router-dom';
 import WebsiteComparisonTool from './tools/WebsiteComparisonTool';
 import CompleteSeOAnalyzer from "./tools/WebsiteComparisonTool";
+import ReferralManagementPortal from './tools/ReferralManagementPortal';
+import IntegrationGuide from './tools/IntegrationGuide';
 
 const tools = {
   'website-comparison': { 
     component: WebsiteComparisonTool,
-    title: "SEO Tool",
-    description: "A sophisticated analysis of your website's performance against competitors you actually care about. Get actionable insights and recommendations."
+    title: "Competitor Website Checker",
+    description: "Compare your website to competitors instantly. Get actionable SEO and web performance insights."
   },
   'seo-analyser': {
     component: CompleteSeOAnalyzer,
-    title: "SEO Analyser",
-    description: "A deep technical and content SEO analysis between your site and a competitor."
+    title: "Competitor Website Checker",
+    description: "Compare your website to competitors instantly. Get actionable SEO and web performance insights."
   },
   'partnership-health': { 
-    title: "Partnership Health Checker",
-    description: "An honest evaluation of your current partnerships. Which ones are performing, which need attention, and which should be quietly retired."
+    component: ReferralManagementPortal,
+    title: "Referral Management Portal",
+    description: "Take control of your B2B referral program with a real-time dashboard. Track every partner lead, measure deal velocity, and drive more revenue—no more spreadsheets."
+  },
+  'portal/integration-guide': {
+    component: IntegrationGuide,
+    title: "Integration Guide",
+    description: "Step-by-step guide to integrate the Referral Management Portal into your existing website."
   },
   'market-readiness': { 
     title: "Market Entry Readiness Assessment",

@@ -1,0 +1,24 @@
+# Allow all bots full access
+User-agent: *
+Allow: /
+
+# Sitemap reference
+Sitemap: https://thearchitectlab.com/sitemap.xml
+
+# Optional: disallow sensitive paths (uncomment if needed)
+# Disallow: /admin/
+# Disallow: /private/
+# Disallow: /api/
+
+# Specific allowances for major crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Optional: throttle crawl rate (adjust if server load issues)
+Crawl-delay: 1

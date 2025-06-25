@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "production": "architect-lab-bf587",
+    "default": "architect-lab-bf587"
+  },
+  "targets": {},
+  "etags": {}
+}
