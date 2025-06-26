@@ -46,11 +46,11 @@ const MainLandingPage = () => {
       service: "Referral Management Portal"
     },
     {
-      id: "market-readiness",
-      title: "Market Entry Readiness Assessment",
-      description: "A discerning evaluation of your expansion readiness. Better to know now than discover later in expensive real-time.",
-      cta: "Access Tool",
-      service: "Market Entry Engine"
+      id: "gdpr-checker",
+      title: "GDPR Compliance Checker for Luxury Brands",
+      description: "Specialized GDPR audit for luxury retailers. Ensure your high-end customer data practices meet EU regulations while maintaining premium brand experience.",
+      cta: "Start Audit",
+      service: "GDPR Compliance Checker"
     }
   ], []);
 
@@ -187,14 +187,7 @@ const MainLandingPage = () => {
   }, []);
 
   const handleToolAccess = (tool) => {
-    if (tool.id === 'seo-analyser') {
-      navigate('/seo-analyzer');
-    } else if (tool.id === 'partnership-health') {
-      window.open('/tools/partnership-health', '_blank');
-    } else {
-      setSelectedTool(tool);
-      setShowLeadModal(true);
-    }
+    navigate(`/waitlist?tool=${tool.id}`);
   };
 
   const validateForm = () => {
@@ -372,19 +365,25 @@ const MainLandingPage = () => {
       <div className="max-w-7xl mx-auto w-full">
         <h2 className="text-4xl sm:text-5xl md:text-6xl font-light mb-8 md:mb-12">Tools. By us.</h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-10">
-          {tools.map((tool, index) => (
-            <div key={index} className="bg-gray-50 border border-gray-200 p-6 md:p-8 rounded-xl shadow hover:shadow-md transition">
-              <div className="text-xs font-mono text-stone-500 mb-4 tracking-[0.2em] uppercase">{tool.service}</div>
-              <h3 className="text-lg md:text-xl font-medium mb-4">{tool.title}</h3>
-              <p className="text-sm text-gray-700 mb-6 leading-relaxed">{tool.description}</p>
-              <button 
-                onClick={() => handleToolAccess(tool)}
-                className="text-sm px-6 py-3 bg-black text-white rounded hover:bg-gray-900 transition-all"
-              >
-                {tool.cta}
-              </button>
-            </div>
-          ))}
+          {tools.map((tool, index) => {
+            let waitlistLink = '#';
+            if (tool.id === 'seo-analyser') waitlistLink = '/waitlist-competitor';
+            if (tool.id === 'partnership-health') waitlistLink = '/waitlist-referral';
+            if (tool.id === 'gdpr-checker') waitlistLink = '/waitlist-gdpr';
+            return (
+              <div key={index} className="bg-gray-50 border border-gray-200 p-6 md:p-8 rounded-xl shadow hover:shadow-md transition">
+                <div className="text-xs font-mono text-stone-500 mb-4 tracking-[0.2em] uppercase">{tool.service}</div>
+                <h3 className="text-lg md:text-xl font-medium mb-4">{tool.title}</h3>
+                <p className="text-sm text-gray-700 mb-6 leading-relaxed">{tool.description}</p>
+                <a 
+                  href={waitlistLink}
+                  className="text-sm px-6 py-3 bg-black text-white rounded hover:bg-gray-900 transition-all inline-block text-center"
+                >
+                  {tool.cta}
+                </a>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

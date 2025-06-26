@@ -25,9 +25,9 @@ const tools = {
     title: "Integration Guide",
     description: "Step-by-step guide to integrate the Referral Management Portal into your existing website."
   },
-  'market-readiness': { 
-    title: "Market Entry Readiness Assessment",
-    description: "A discerning evaluation of your expansion readiness. Better to know now than discover later in expensive real-time."
+  'gdpr-checker': {
+    title: "GDPR Compliance Checker for Luxury Brands",
+    description: "Specialized GDPR audit for luxury retailers. Ensure your high-end customer data practices meet EU regulations while maintaining premium brand experience."
   }
 };
 
